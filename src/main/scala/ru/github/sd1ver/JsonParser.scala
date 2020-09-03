@@ -6,7 +6,7 @@ import org.json4s.jackson.Serialization._
 object JsonParser extends App {
 
   private val JsonStart = '{'
-  private val JsonEnd = '}'
+  private val JsonEnd   = '}'
 
   implicit val formats: DefaultFormats.type = DefaultFormats
 
@@ -15,7 +15,7 @@ object JsonParser extends App {
 
   val data     = """[ { "a": 1, "b": 2}, { "a": 2, "b":3}, { "a": 5, "b": 7 }]"""
   val lazyData = data.to(LazyList)
-  val answers = readAndCreateAnswer(lazyData)
+  val answers  = readAndCreateAnswer(lazyData)
   println(answers.toList.mkString("\n"))
 
   private def readAndCreateAnswer(stream: LazyList[Char]): LazyList[Answer] = {
@@ -38,7 +38,5 @@ object JsonParser extends App {
     val item = read[Item](json)
     toAnswer(item)
   }
-
-
 
 }
