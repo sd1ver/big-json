@@ -30,7 +30,7 @@ object Fs2Parser extends App with BusinessLogic with JsonSyntax{
         .through(io.circe.fs2.byteArrayParser)
         .through(io.circe.fs2.decoder[IO, Item])
         .map(toAnswer)
-        .map(i => (i.asJson.toString + ",").getBytes)
+        .map(i => (i.asJson.toString + JsonArraySeparator).getBytes)
         .flatMap(b => Stream.chunk(Chunk.array(b)))
       val result = Stream[IO, Byte](JsonArrayStart.toByte) ++ jsonStream ++ Stream[IO, Byte](JsonArrayEnd.toByte)
       result.through(fs2.io.file.writeAll(Paths.get(outputFile), blocker))
