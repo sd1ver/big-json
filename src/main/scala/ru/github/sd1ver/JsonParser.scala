@@ -34,10 +34,14 @@ object JsonParser extends App {
         val fileData    = source.to(LazyList)
         val fileAnswers = convertToAnswers(fileData)
         bufferedWriter.append(JsonArrayStart)
+        var hasWrittenAnswers = false
         fileAnswers.foreach { answer =>
+          if(hasWrittenAnswers) {
+            bufferedWriter.write(JsonArraySeparator)
+          }
           val jsonAnswer = write(answer)
           bufferedWriter.write(jsonAnswer)
-          bufferedWriter.append(JsonArraySeparator)
+          hasWrittenAnswers = true
         }
         bufferedWriter.append(JsonArrayEnd)
       }
@@ -72,6 +76,6 @@ object JsonParser extends App {
     } finally {
       resource.close()
     }
-
   }
+
 }
