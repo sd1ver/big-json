@@ -8,6 +8,7 @@ import fs2.Stream
 import io.circe.generic.auto._
 import io.circe.syntax._
 import ru.github.sd1ver.data.Item
+import scala.language.postfixOps
 
 import scala.concurrent.ExecutionContext
 
@@ -30,11 +31,18 @@ object Fs2Parser extends App with BusinessLogic with JsonSyntax{
         .through(io.circe.fs2.byteArrayParser)
         .through(io.circe.fs2.decoder[IO, Item])
         .map(toAnswer)
-        .map(i => i.asJson.toString + JsonArraySeparator)
+        .map(i => i.asJson.toString)
+        .zipWithIndex
+        .map(addCommaAfterFirst _ tupled)
         .flatMap(b => Stream.emits(b.getBytes))
       val result = Stream[IO, Byte](JsonArrayStart.toByte) ++ jsonStream ++ Stream[IO, Byte](JsonArrayEnd.toByte)
       result.through(fs2.io.file.writeAll(Paths.get(outputFile), blocker))
     }
+  }
+
+  def addCommaAfterFirst(json: String, index: Long): String = {
+    val separator = if(index > 0) JsonArraySeparator else ""
+    separator + json
   }
 
 }
