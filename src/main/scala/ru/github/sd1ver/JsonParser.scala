@@ -3,9 +3,6 @@ package ru.github.sd1ver
 import org.json4s.DefaultFormats
 import org.json4s.jackson.Serialization._
 
-/* Есть файл, в котором записан JSON [{ "a": int, "b": int }, { "a": int, "b": int }, ... ].
-Сгенерировать файл, в котором будет лежать [ { "a": int, "b": int, "sum": int}, ... ]*/
-
 object JsonParser extends App {
 
   private val JsonStart = '{'
