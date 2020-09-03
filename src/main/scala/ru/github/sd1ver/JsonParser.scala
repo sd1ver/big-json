@@ -4,10 +4,9 @@ import java.io.{ BufferedWriter, Closeable, File, FileWriter }
 
 import org.json4s.DefaultFormats
 import org.json4s.jackson.Serialization._
-
 import scala.io.Source
 
-object JsonParser extends App {
+object JsonParser extends App with BusinessLogic{
 
   private val JsonStart          = '{'
   private val JsonEnd            = '}'
@@ -20,8 +19,6 @@ object JsonParser extends App {
 
   implicit val formats: DefaultFormats.type = DefaultFormats
 
-  case class Item(a: Int, b: Int)
-  case class Answer(a: Int, b: Int, sum: Int)
 
   val outFile = new File("output.json")
   val writer  = new BufferedWriter(new FileWriter(outFile))
@@ -59,10 +56,6 @@ object JsonParser extends App {
     }.getOrElse(LazyList.empty)
   }
 
-  private def toAnswer(item: Item): Answer = {
-    val sum = item.a + item.b
-    Answer(item.a, item.b, sum)
-  }
 
   private def jsonItemToAnswer(json: String): Answer = {
     val item = read[Item](json)
