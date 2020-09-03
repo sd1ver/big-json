@@ -19,8 +19,7 @@ object Fs2Parser extends App with BusinessLogic {
   val inputFile = "example.json"
   val outputFile = "fs2_output.json"
 
-  val result = circeParser.compile.toList.unsafeRunSync()
-  println(result)
+  circeParser.compile.toList.unsafeRunSync()
   blockingPool.shutdown()
 
   private def circeParser = {
