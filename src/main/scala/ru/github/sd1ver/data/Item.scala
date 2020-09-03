@@ -1,4 +1,4 @@
-package ru.github.sd1ver
+package ru.github.sd1ver.data
 
 case class Item(a: Int, b: Int)
 

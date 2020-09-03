@@ -1,9 +1,11 @@
 package ru.github.sd1ver
 
-import java.io.{ BufferedWriter, Closeable, File, FileWriter }
+import java.io.{BufferedWriter, Closeable, File, FileWriter}
 
 import org.json4s.DefaultFormats
 import org.json4s.jackson.Serialization._
+import ru.github.sd1ver.data.{Answer, Item}
+
 import scala.io.Source
 
 object JsonParser extends App with BusinessLogic {

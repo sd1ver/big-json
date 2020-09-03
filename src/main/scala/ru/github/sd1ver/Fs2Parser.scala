@@ -3,10 +3,11 @@ package ru.github.sd1ver
 import java.nio.file.Paths
 import java.util.concurrent.Executors
 
-import cats.effect.{ Blocker, ContextShift, IO }
-import fs2.{ Chunk, Stream }
+import cats.effect.{Blocker, ContextShift, IO}
+import fs2.{Chunk, Stream}
 import io.circe.generic.auto._
 import io.circe.syntax._
+import ru.github.sd1ver.data.Item
 
 import scala.concurrent.ExecutionContext
 
