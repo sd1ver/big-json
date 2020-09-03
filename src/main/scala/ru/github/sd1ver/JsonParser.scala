@@ -8,13 +8,7 @@ import ru.github.sd1ver.data.{Answer, Item}
 
 import scala.io.Source
 
-object JsonParser extends App with BusinessLogic {
-
-  private val JsonStart          = '{'
-  private val JsonEnd            = '}'
-  private val JsonArrayStart     = '['
-  private val JsonArrayEnd       = ']'
-  private val JsonArraySeparator = ','
+object JsonParser extends App with BusinessLogic with JsonSyntax{
 
   private val inBufferSize  = 10
   private val outBufferSize = 10

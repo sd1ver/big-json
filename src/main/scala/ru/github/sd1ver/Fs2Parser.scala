@@ -11,7 +11,7 @@ import ru.github.sd1ver.data.Item
 
 import scala.concurrent.ExecutionContext
 
-object Fs2Parser extends App with BusinessLogic {
+object Fs2Parser extends App with BusinessLogic with JsonSyntax{
 
   val blockingPool                                = Executors.newFixedThreadPool(1)
   implicit val executionContext: ExecutionContext = ExecutionContext.fromExecutor(blockingPool)
@@ -26,14 +26,14 @@ object Fs2Parser extends App with BusinessLogic {
   private def circeParser = {
     Stream.resource(Blocker[IO]).flatMap { blocker =>
       val fileBytes = fs2.io.file.readAll[IO](Paths.get(inputFile), blocker, 4096)
-      val result = fileBytes
+      val jsonStream = fileBytes
         .through(io.circe.fs2.byteArrayParser)
         .through(io.circe.fs2.decoder[IO, Item])
         .map(toAnswer)
-        .map(i => i.asJson.toString.getBytes)
+        .map(i => (i.asJson.toString + ",").getBytes)
         .flatMap(b => Stream.chunk(Chunk.array(b)))
-      result
-        .through(fs2.io.file.writeAll(Paths.get(outputFile), blocker))
+      val result = Stream[IO, Byte](JsonArrayStart.toByte) ++ jsonStream ++ Stream[IO, Byte](JsonArrayEnd.toByte)
+      result.through(fs2.io.file.writeAll(Paths.get(outputFile), blocker))
     }
   }
 
