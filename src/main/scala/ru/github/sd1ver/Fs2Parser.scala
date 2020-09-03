@@ -4,7 +4,7 @@ import java.nio.file.Paths
 import java.util.concurrent.Executors
 
 import cats.effect.{Blocker, ContextShift, IO}
-import fs2.{Chunk, Stream}
+import fs2.Stream
 import io.circe.generic.auto._
 import io.circe.syntax._
 import ru.github.sd1ver.data.Item
@@ -30,8 +30,8 @@ object Fs2Parser extends App with BusinessLogic with JsonSyntax{
         .through(io.circe.fs2.byteArrayParser)
         .through(io.circe.fs2.decoder[IO, Item])
         .map(toAnswer)
-        .map(i => (i.asJson.toString + JsonArraySeparator).getBytes)
-        .flatMap(b => Stream.chunk(Chunk.array(b)))
+        .map(i => i.asJson.toString + JsonArraySeparator)
+        .flatMap(b => Stream.emits(b.getBytes))
       val result = Stream[IO, Byte](JsonArrayStart.toByte) ++ jsonStream ++ Stream[IO, Byte](JsonArrayEnd.toByte)
       result.through(fs2.io.file.writeAll(Paths.get(outputFile), blocker))
     }
