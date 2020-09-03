@@ -6,7 +6,7 @@ import org.json4s.DefaultFormats
 import org.json4s.jackson.Serialization._
 import scala.io.Source
 
-object JsonParser extends App with BusinessLogic{
+object JsonParser extends App with BusinessLogic {
 
   private val JsonStart          = '{'
   private val JsonEnd            = '}'
@@ -18,7 +18,6 @@ object JsonParser extends App with BusinessLogic{
   private val outBufferSize = 10
 
   implicit val formats: DefaultFormats.type = DefaultFormats
-
 
   val outFile = new File("output.json")
   val writer  = new BufferedWriter(new FileWriter(outFile))
@@ -33,7 +32,7 @@ object JsonParser extends App with BusinessLogic{
         bufferedWriter.append(JsonArrayStart)
         var hasWrittenAnswers = false
         fileAnswers.foreach { answer =>
-          if(hasWrittenAnswers) {
+          if (hasWrittenAnswers) {
             bufferedWriter.write(JsonArraySeparator)
           }
           val jsonAnswer = write(answer)
@@ -55,7 +54,6 @@ object JsonParser extends App with BusinessLogic{
       answer #:: convertToAnswers(tailStream)
     }.getOrElse(LazyList.empty)
   }
-
 
   private def jsonItemToAnswer(json: String): Answer = {
     val item = read[Item](json)

@@ -1,6 +1,5 @@
 package ru.github.sd1ver
 
-
 trait BusinessLogic {
   def toAnswer(item: Item): Answer = {
     val sum = item.a + item.b

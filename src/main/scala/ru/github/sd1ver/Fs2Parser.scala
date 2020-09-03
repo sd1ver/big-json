@@ -3,8 +3,8 @@ package ru.github.sd1ver
 import java.nio.file.Paths
 import java.util.concurrent.Executors
 
-import cats.effect.{Blocker, ContextShift, IO}
-import fs2.{Chunk, Stream}
+import cats.effect.{ Blocker, ContextShift, IO }
+import fs2.{ Chunk, Stream }
 import io.circe.generic.auto._
 import io.circe.syntax._
 
@@ -16,7 +16,7 @@ object Fs2Parser extends App with BusinessLogic {
   implicit val executionContext: ExecutionContext = ExecutionContext.fromExecutor(blockingPool)
   implicit val contextShift: ContextShift[IO]     = IO.contextShift(executionContext)
 
-  val inputFile = "example.json"
+  val inputFile  = "example.json"
   val outputFile = "fs2_output.json"
 
   circeParser.compile.toList.unsafeRunSync()
@@ -32,7 +32,7 @@ object Fs2Parser extends App with BusinessLogic {
         .map(i => i.asJson.toString.getBytes)
         .flatMap(b => Stream.chunk(Chunk.array(b)))
       result
-          .through(fs2.io.file.writeAll(Paths.get(outputFile), blocker))
+        .through(fs2.io.file.writeAll(Paths.get(outputFile), blocker))
     }
   }
 
