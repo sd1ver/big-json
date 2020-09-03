@@ -1,6 +1,6 @@
 package ru.github.sd1ver
 
-import java.io.{BufferedWriter, Closeable, File, FileWriter}
+import java.io.{ BufferedWriter, Closeable, File, FileWriter }
 
 import org.json4s.DefaultFormats
 import org.json4s.jackson.Serialization._
@@ -9,12 +9,14 @@ import scala.io.Source
 
 object JsonParser extends App {
 
-  private val JsonStart = '{'
-  private val JsonEnd   = '}'
+  private val JsonStart          = '{'
+  private val JsonEnd            = '}'
+  private val JsonArrayStart     = '['
+  private val JsonArrayEnd       = ']'
+  private val JsonArraySeparator = ','
 
-  private val inBufferSize = 10
+  private val inBufferSize  = 10
   private val outBufferSize = 10
-
 
   implicit val formats: DefaultFormats.type = DefaultFormats
 
@@ -22,27 +24,25 @@ object JsonParser extends App {
   case class Answer(a: Int, b: Int, sum: Int)
 
   val outFile = new File("output.json")
-  val writer = new BufferedWriter(new FileWriter(outFile))
+  val writer  = new BufferedWriter(new FileWriter(outFile))
 
   def inputFile = Source.fromFile(new File("example.json"), inBufferSize)
 
-  withClosable(inputFile){ source =>
-    withClosable(new FileWriter(outFile)){ fileWriter =>
-      withClosable(new BufferedWriter(fileWriter, outBufferSize)){ bufferedWriter =>
-        val fileData = source.to(LazyList)
-        val fileAnswers  = convertToAnswers(fileData)
-        bufferedWriter.append('[')
-        fileAnswers.foreach{ answer =>
+  withClosable(inputFile) { source =>
+    withClosable(new FileWriter(outFile)) { fileWriter =>
+      withClosable(new BufferedWriter(fileWriter, outBufferSize)) { bufferedWriter =>
+        val fileData    = source.to(LazyList)
+        val fileAnswers = convertToAnswers(fileData)
+        bufferedWriter.append(JsonArrayStart)
+        fileAnswers.foreach { answer =>
           val jsonAnswer = write(answer)
           bufferedWriter.write(jsonAnswer)
-          bufferedWriter.append(',')
+          bufferedWriter.append(JsonArraySeparator)
         }
-        bufferedWriter.append(']')
+        bufferedWriter.append(JsonArrayEnd)
       }
     }
   }
-
-
 
   private def convertToAnswers(stream: LazyList[Char]): LazyList[Answer] = {
     val jsonStart = stream.dropWhile(c => c != JsonStart)
@@ -67,7 +67,7 @@ object JsonParser extends App {
 
   private def withClosable[A <: Closeable, B](closable: => A)(body: A => B) = {
     val resource = closable
-    try{
+    try {
       body(resource)
     } finally {
       resource.close()
