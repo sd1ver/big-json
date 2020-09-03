@@ -1,31 +1,57 @@
 package ru.github.sd1ver
 
+import java.io.{BufferedWriter, Closeable, File, FileWriter}
+
 import org.json4s.DefaultFormats
 import org.json4s.jackson.Serialization._
+
+import scala.io.Source
 
 object JsonParser extends App {
 
   private val JsonStart = '{'
   private val JsonEnd   = '}'
 
+  private val inBufferSize = 10
+  private val outBufferSize = 10
+
+
   implicit val formats: DefaultFormats.type = DefaultFormats
 
   case class Item(a: Int, b: Int)
   case class Answer(a: Int, b: Int, sum: Int)
 
-  val data     = """[ { "a": 1, "b": 2}, { "a": 2, "b":3}, { "a": 5, "b": 7 }]"""
-  val lazyData = data.to(LazyList)
-  val answers  = readAndCreateAnswer(lazyData)
-  println(answers.toList.mkString("\n"))
+  val outFile = new File("output.json")
+  val writer = new BufferedWriter(new FileWriter(outFile))
 
-  private def readAndCreateAnswer(stream: LazyList[Char]): LazyList[Answer] = {
+  def inputFile = Source.fromFile(new File("example.json"), inBufferSize)
+
+  withClosable(inputFile){ source =>
+    withClosable(new FileWriter(outFile)){ fileWriter =>
+      withClosable(new BufferedWriter(fileWriter, outBufferSize)){ bufferedWriter =>
+        val fileData = source.to(LazyList)
+        val fileAnswers  = convertToAnswers(fileData)
+        bufferedWriter.append('[')
+        fileAnswers.foreach{ answer =>
+          val jsonAnswer = write(answer)
+          bufferedWriter.write(jsonAnswer)
+          bufferedWriter.append(',')
+        }
+        bufferedWriter.append(']')
+      }
+    }
+  }
+
+
+
+  private def convertToAnswers(stream: LazyList[Char]): LazyList[Answer] = {
     val jsonStart = stream.dropWhile(c => c != JsonStart)
     stream.headOption.map { _ =>
       val jsonItem   = jsonStart.takeWhile(c => c != JsonEnd).toList :+ JsonEnd
       val jsonString = jsonItem.mkString
       val tailStream = jsonStart.tail.dropWhile(c => c != JsonStart)
       val answer     = jsonItemToAnswer(jsonString)
-      answer #:: readAndCreateAnswer(tailStream)
+      answer #:: convertToAnswers(tailStream)
     }.getOrElse(LazyList.empty)
   }
 
@@ -39,4 +65,13 @@ object JsonParser extends App {
     toAnswer(item)
   }
 
+  private def withClosable[A <: Closeable, B](closable: => A)(body: A => B) = {
+    val resource = closable
+    try{
+      body(resource)
+    } finally {
+      resource.close()
+    }
+
+  }
 }

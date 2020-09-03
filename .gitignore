@@ -16,3 +16,4 @@ target/
 out/
 
 bin
+output.json
