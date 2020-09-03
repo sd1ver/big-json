@@ -33,14 +33,14 @@ object Fs2Parser extends App with BusinessLogic with JsonSyntax{
         .map(toAnswer)
         .map(_.asJson.toString)
         .zipWithIndex
-        .map(addCommaAfterFirst _ tupled)
+        .map(addCommaBeforeEachInTail _ tupled)
         .flatMap(b => Stream.emits(b.getBytes))
       val result = Stream[IO, Byte](JsonArrayStart.toByte) ++ jsonStream ++ Stream[IO, Byte](JsonArrayEnd.toByte)
       result.through(fs2.io.file.writeAll(Paths.get(outputFile), blocker))
     }
   }
 
-  def addCommaAfterFirst(json: String, index: Long): String = {
+  def addCommaBeforeEachInTail(json: String, index: Long): String = {
     val separator = if(index > 0) JsonArraySeparator else ""
     separator + json
   }
