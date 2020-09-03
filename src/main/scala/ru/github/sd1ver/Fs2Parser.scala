@@ -31,7 +31,7 @@ object Fs2Parser extends App with BusinessLogic with JsonSyntax{
         .through(io.circe.fs2.byteArrayParser)
         .through(io.circe.fs2.decoder[IO, Item])
         .map(toAnswer)
-        .map(i => i.asJson.toString)
+        .map(_.asJson.toString)
         .zipWithIndex
         .map(addCommaAfterFirst _ tupled)
         .flatMap(b => Stream.emits(b.getBytes))
